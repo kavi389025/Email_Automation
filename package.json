@@ -1,0 +1,25 @@
+{
+  "name": "mailsense-ai-workspace",
+  "version": "1.0.0",
+  "description": "MailSense AI - Intelligent Email Assistant Full-Stack Platform",
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build:client": "cd client && npm run build",
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm start",
+    "test:api": "cd server && node test_api.js"
+  },
+  "keywords": [
+    "email",
+    "gmail",
+    "ai",
+    "summarizer",
+    "reply-generator",
+    "oauth",
+    "nextjs",
+    "express"
+  ],
+  "author": "MailSense AI Team",
+  "license": "MIT"
+}
