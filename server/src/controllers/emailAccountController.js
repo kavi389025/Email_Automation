@@ -44,7 +44,7 @@ async function startOAuth(req, res, next) {
       });
     }
 
-    const state = JSON.stringify({ userId: req.user._id });
+    const state = Buffer.from(JSON.stringify({ userId: req.user._id.toString() })).toString('base64url');
     const authUrl = googleOAuth.generateAuthUrl(state);
 
     return res.status(200).json({
@@ -76,10 +76,16 @@ async function handleOAuthCallback(req, res, next) {
     let userId = null;
     if (state) {
       try {
-        const parsedState = JSON.parse(state);
+        const decoded = Buffer.from(state, 'base64url').toString('utf8');
+        const parsedState = JSON.parse(decoded);
         userId = parsedState.userId;
       } catch (e) {
-        // state wasn't json
+        try {
+          const parsedState = JSON.parse(state);
+          userId = parsedState.userId;
+        } catch (e2) {
+          userId = state;
+        }
       }
     }
 
