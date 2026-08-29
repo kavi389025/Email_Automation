@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+let rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// Remove trailing slashes
+rawBaseUrl = rawBaseUrl.trim().replace(/\/+$/, '');
+// Ensure the base URL ends with /api for all requests
+const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,6 +13,7 @@ const api = axios.create({
   },
   timeout: 30000,
 });
+
 
 // Request interceptor to attach JWT token
 api.interceptors.request.use(
