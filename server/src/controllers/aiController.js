@@ -48,23 +48,31 @@ async function summarize(req, res, next) {
 
 async function createReply(req, res, next) {
   try {
-    const { emailId, tone = 'professional', userInstructions = '' } = req.body;
+    const { emailId, tone = 'professional', userInstructions = '', subject = '', bodyText = '', recipient = '' } = req.body;
 
-    const email = await EmailCache.findOne({ _id: emailId, owner: req.user._id });
-    if (!email) {
-      return res.status(404).json({
-        success: false,
-        code: 'EMAIL_NOT_FOUND',
-        message: 'Email not found for reply generation.',
-      });
+    let email = null;
+    let threadMessages = [];
+
+    if (emailId && emailId !== 'compose_new') {
+      try {
+        email = await EmailCache.findOne({ _id: emailId, owner: req.user._id });
+        if (email && email.threadId) {
+          threadMessages = await EmailCache.find({
+            owner: req.user._id,
+            threadId: email.threadId,
+          }).sort({ receivedAt: 1 });
+        }
+      } catch (e) {
+        // Ignore invalid ObjectId cast error and construct fallback email
+      }
     }
 
-    let threadMessages = [];
-    if (email.threadId) {
-      threadMessages = await EmailCache.find({
-        owner: req.user._id,
-        threadId: email.threadId,
-      }).sort({ receivedAt: 1 });
+    if (!email) {
+      email = {
+        subject: subject || 'New Message',
+        bodyText: bodyText || userInstructions || 'Drafting a new message.',
+        from: { name: recipient || 'Recipient', address: recipient || '' },
+      };
     }
 
     const replyResult = await generateReply({
