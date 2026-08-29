@@ -19,12 +19,13 @@ function isConfigured() {
 }
 
 function getOAuth2Client() {
-  return new google.auth.OAuth2(
-    env.google.clientId,
-    env.google.clientSecret,
-    env.google.redirectUri
-  );
+  const clientId = (env.google.clientId || '').trim();
+  const clientSecret = (env.google.clientSecret || '').trim();
+  const redirectUri = (env.google.redirectUri || '').trim().replace(/[\r\n\t ]+$/g, '');
+
+  return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 }
+
 
 function generateAuthUrl(state = '') {
   const oAuth2Client = getOAuth2Client();
